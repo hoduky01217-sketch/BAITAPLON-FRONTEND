@@ -631,7 +631,7 @@ const AdminProduct = () => {
               </WrapperUploadFile>
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" disabled={isLoading} loading={isLoading}>
                 Submit
               </Button>
             </Form.Item>
@@ -740,7 +740,7 @@ const AdminProduct = () => {
               </WrapperUploadFile>
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" disabled={isLoadingUpdated} loading={isLoadingUpdated}>
                 Apply
               </Button>
             </Form.Item>

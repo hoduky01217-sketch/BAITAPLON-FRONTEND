@@ -21,7 +21,7 @@ const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  const user  = useSelector((state) => state.user)
+  //const user  = useSelector((state) => state.user)
 
   const navigate = useNavigate()
 
@@ -114,7 +114,7 @@ const SignInPage = () => {
           {data?.status === 'ERR' && <span style={{ color: 'red' }}>{data?.message}</span>}
           <Loading isLoading={isPending}>
             <ButtonComponent
-              disabled={!email.length || !password.length}
+              disabled={!email.length || !password.length || isPending}
               onClick={handleSignIn}
               size={40}
               styleButton={{

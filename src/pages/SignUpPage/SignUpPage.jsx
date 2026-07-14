@@ -108,7 +108,7 @@ const SignUpPage = () => {
           {data?.status === 'ERR' && <span style={{ color: 'red' }}>{data?.message}</span>}
           <Loading isLoading={isPending}>
             <ButtonComponent
-              disabled={!email.length || !password.length || !confirmPassword.length}
+              disabled={!email.length || !password.length || !confirmPassword.length || isPending}
               onClick={handleSignUp}
               size={40}
               styleButton={{
@@ -127,7 +127,7 @@ const SignUpPage = () => {
         </WrapperContainerLeft>
         <WrapperContainerRight>
           <Image src={imageLogo} preview={false} alt="iamge-logo" height="203px" width="203px" />
-          <h4>Mua sắm tại LTTD</h4>
+          <h4>Mua sắm tại TIKI</h4>
         </WrapperContainerRight>
       </div>
     </div >

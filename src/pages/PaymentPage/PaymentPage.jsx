@@ -97,11 +97,11 @@ const PaymentPage = () => {
       && user?.address && user?.phone && user?.city && priceMemo && user?.id) {
         // eslint-disable-next-line no-unused-expressions
         mutationAddOrder.mutate(
-          { 
-            token: user?.access_token, 
-            orderItems: order?.orderItemsSlected, 
+          {
+            token: user?.access_token,
+            orderItems: order?.orderItemsSlected,
             fullName: user?.name,
-            address:user?.address, 
+            address:user?.address,
             phone:user?.phone,
             city: user?.city,
             paymentMethod: payment,
@@ -112,6 +112,8 @@ const PaymentPage = () => {
             email: user?.email
           }
         )
+      } else {
+        message.error('Vui lòng cập nhật đầy đủ thông tin giao hàng (tên, địa chỉ, sđt, thành phố) trước khi đặt hàng')
       }
   }
   
@@ -139,7 +141,7 @@ const PaymentPage = () => {
   )
 
   const {isPending: isLoading, data} = mutationUpdate
-  const {data: dataAdd,isPending:isLoadingAddOrder, isSuccess, isError} = mutationAddOrder
+  const {data: dataAdd,isPending:isLoadingAddOrder, isSuccess, isError, error: errorAddOrder} = mutationAddOrder
 
   useEffect(() => {
     if (isSuccess && dataAdd?.status === 'OK') {
@@ -158,7 +160,11 @@ const PaymentPage = () => {
         }
       })
     } else if (isError) {
-      message.error()
+      if (errorAddOrder?.code === 'ECONNABORTED') {
+        message.error('Kết nối tới máy chủ quá chậm, vui lòng thử lại sau')
+      } else {
+        message.error('Đặt hàng thất bại, vui lòng thử lại')
+      }
     }
   }, [isSuccess,isError])
 
