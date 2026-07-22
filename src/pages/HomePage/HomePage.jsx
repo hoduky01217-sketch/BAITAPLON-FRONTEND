@@ -10,7 +10,7 @@ import CardComponent from '../../components/CardComponent/CardComponent'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import * as ProductService from '../../services/ProductService'
 import { useSelector } from 'react-redux'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Loading from '../../components/LoadingComponent/Loading'
 import { useDebounce } from '../../hooks/UseDebounce'
 
@@ -19,8 +19,7 @@ const HomePage = () => {
   const searchDebounce = useDebounce(searchProduct, 500)
   const [loading, setLoading] = useState(false)
   const [limit, setLimit] = useState(8)
-  const [typeProducts, setTypeProducts] = useState([])
-  
+
   const fetchProductAll = async (context) => {
     const limit = context?.queryKey && context?.queryKey[1]
     const search = context?.queryKey && context?.queryKey[2]
@@ -30,9 +29,7 @@ const HomePage = () => {
 
   const fetchAllTypeProduct = async () => {
     const res = await ProductService.getAllTypeProduct()
-    if(res?.status === 'OK') {
-      setTypeProducts(res?.data)
-    }
+    return res?.status === 'OK' ? res?.data : []
   }
 
   // Đã sửa lại cú pháp useQuery theo chuẩn v5
@@ -44,9 +41,12 @@ const HomePage = () => {
     placeholderData: keepPreviousData
   })
 
-  useEffect(() => {
-    fetchAllTypeProduct()
-  }, [])
+  const { data: typeProducts = [] } = useQuery({
+    queryKey: ['type-product'],
+    queryFn: fetchAllTypeProduct,
+    retry: 3,
+    retryDelay: 1000,
+  })
 
   return (
     <Loading isLoading={isLoading || loading}>

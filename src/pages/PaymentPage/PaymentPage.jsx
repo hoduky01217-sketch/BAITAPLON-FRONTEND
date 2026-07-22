@@ -17,7 +17,6 @@ import { updateUser } from '../../redux/slides/userSlide';
 import { useNavigate } from 'react-router-dom';
 import { removeAllOrderProduct } from '../../redux/slides/orderSlide';
 import PayPalButtonComponent from '../../components/PayPalButtonComponent/PayPalButtonComponent';
-import * as PaymentService from '../../services/PaymentService'
 import { USD_TO_VND_RATE } from '../../contant'
 
 const PaymentPage = () => {
@@ -234,14 +233,14 @@ const PaymentPage = () => {
     setPayment(e.target.value)
   }
 
-  const addPaypalScript = async () => {
-    const { data } = await PaymentService.getConfig()
-    if (!data) {
+  const addPaypalScript = () => {
+    const clientId = process.env.REACT_APP_PAYPAL_CLIENT_ID
+    if (!clientId) {
       return
     }
     const script = document.createElement('script')
     script.type = 'text/javascript'
-    script.src = `https://www.paypal.com/sdk/js?client-id=${data}`
+    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&disable-funding=paylater,venmo`
     script.async = true;
     script.onload = () => {
       setSdkReady(true)
@@ -259,7 +258,6 @@ const PaymentPage = () => {
 
   return (
     <div style={{background: '#f5f5fa', with: '100%', height: '100vh'}}>
-      <Loading isLoading={isLoadingAddOrder}>
         <div style={{height: '100%', width: '1270px', margin: '0 auto'}}>
           <h3>Thanh toán</h3>
           <div style={{ display: 'flex', justifyContent: 'center'}}>
@@ -314,36 +312,38 @@ const PaymentPage = () => {
                   </span>
                 </WrapperTotal>
               </div>
-              {payment === 'paypal' ? (
-                <div style={{width: '320px'}}>
-                  {!(user?.name && user?.address && user?.phone && user?.city) ? (
-                    <div style={{color: 'red', marginBottom: '8px'}}>Vui lòng cập nhật đầy đủ thông tin giao hàng trước khi thanh toán bằng paypal</div>
-                  ) : sdkReady ? (
-                    <PayPalButtonComponent
-                      amount={Math.max(1, Math.round(totalPriceMemo / USD_TO_VND_RATE))}
-                      currency="USD"
-                      onSuccess={onSuccessPaypal}
-                      onError={onErrorPaypal}
-                    />
-                  ) : (
-                    <Loading isLoading={true}><div style={{height: '48px'}} /></Loading>
-                  )}
-                </div>
-              ) : (
-                <ButtonComponent
-                  onClick={() => handleAddOrder()}
-                  size={40}
-                  styleButton={{
-                      background: 'rgb(255, 57, 69)',
-                      height: '48px',
-                      width: '320px',
-                      border: 'none',
-                      borderRadius: '4px'
-                  }}
-                  textbutton={'Đặt hàng'}
-                  styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
-              ></ButtonComponent>
-              )}
+              <Loading isLoading={isLoadingAddOrder}>
+                {payment === 'paypal' ? (
+                  <div style={{width: '320px'}}>
+                    {!(user?.name && user?.address && user?.phone && user?.city) ? (
+                      <div style={{color: 'red', marginBottom: '8px'}}>Vui lòng cập nhật đầy đủ thông tin giao hàng trước khi thanh toán bằng paypal</div>
+                    ) : sdkReady ? (
+                      <PayPalButtonComponent
+                        amount={Math.max(1, Math.round(totalPriceMemo / USD_TO_VND_RATE))}
+                        currency="USD"
+                        onSuccess={onSuccessPaypal}
+                        onError={onErrorPaypal}
+                      />
+                    ) : (
+                      <div style={{height: '48px'}} />
+                    )}
+                  </div>
+                ) : (
+                  <ButtonComponent
+                    onClick={() => handleAddOrder()}
+                    size={40}
+                    styleButton={{
+                        background: 'rgb(255, 57, 69)',
+                        height: '48px',
+                        width: '320px',
+                        border: 'none',
+                        borderRadius: '4px'
+                    }}
+                    textbutton={'Đặt hàng'}
+                    styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
+                ></ButtonComponent>
+                )}
+              </Loading>
             </WrapperRight>
           </div>
         </div>
@@ -389,7 +389,6 @@ const PaymentPage = () => {
             </Form>
           </Loading>
         </ModalComponent>
-      </Loading>
     </div>
   )
 }

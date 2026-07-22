@@ -3,12 +3,12 @@ import React from 'react'
 
 const InputComponent = ({size, placeholder, bordered, style, ...rests }) => {
   return (
-    <Input 
-        size={size} 
-        placeholder={placeholder} 
-        bordered={bordered} 
+    <Input
+        size={size}
+        placeholder={placeholder}
+        variant={bordered === false ? 'borderless' : undefined}
         style={style}
-        {...rests} 
+        {...rests}
     />
   )
 }

@@ -4,8 +4,8 @@ import { Pagination } from 'antd'
 import { WrapperProducts } from './style'
 import { useLocation } from 'react-router-dom'
 import * as ProductService from '../../services/ProductService'
-import { useEffect } from 'react'
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import Loading from '../../components/LoadingComponent/Loading'
 import { useSelector } from 'react-redux'
 import { useDebounce } from '../../hooks/UseDebounce'
@@ -15,34 +15,29 @@ const TypeProductPage = () => {
     const searchDebounce = useDebounce(searchProduct, 500)
 
     const { state}  = useLocation()
-    const [products, setProducts] = useState([])
-    const [loading, setLoading] = useState(false)
     const [panigate, setPanigate] = useState({
         page: 0,
         limit: 10,
-        total: 1,
     })
-    const fetchProductType = async (type, page, limit) => {
-        setLoading(true)
-        const res = await ProductService.getProductType(type, page, limit)
-        if(res?.status === 'OK') {
-            setLoading(false)
-            setProducts(res?.data)
-            setPanigate({...panigate, total: res?.totalPage})
-        }else {
-            setLoading(false)
-        }
+
+    const fetchProductType = async () => {
+        const res = await ProductService.getProductType(state, panigate.page, panigate.limit)
+        return res
     }
 
-    useEffect(() => {
-        if(state){
-            fetchProductType(state, panigate.page, panigate.limit)
-        }
-    }, [state,panigate.page, panigate.limit])
+    const { data, isLoading: loading } = useQuery({
+        queryKey: ['products-type', state, panigate.page, panigate.limit],
+        queryFn: fetchProductType,
+        enabled: !!state,
+        retry: 3,
+        retryDelay: 1000,
+    })
 
+    const products = data?.status === 'OK' ? data?.data : []
+    const total = data?.status === 'OK' ? data?.totalPage : 1
 
     const onChange = (current, pageSize) => {
-        setPanigate({...panigate, page: current - 1, limit: pageSize})    
+        setPanigate({...panigate, page: current - 1, limit: pageSize})
     }
     return (
         <Loading isLoading={loading}>
@@ -73,7 +68,7 @@ const TypeProductPage = () => {
                             )
                         })}
                     </WrapperProducts>
-                    <Pagination defaultCurrent={panigate.page + 1} total={panigate?.total} onChange={onChange} style={{ textAlign: 'center', marginTop: '10px' }} />
+                    <Pagination defaultCurrent={panigate.page + 1} total={total} onChange={onChange} style={{ textAlign: 'center', marginTop: '10px' }} />
                 </div>
             </div>
         </Loading>
